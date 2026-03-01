@@ -31,8 +31,10 @@ dtparam=audio=on
 # Automatically load overlays for detected cameras
 camera_auto_detect=1
 
-# Automatically load overlays for detected DSI displays
-display_auto_detect=1
+# Disable auto-detection of DSI displays since we explicitly configure the
+# Waveshare panel below. Auto-detect can conflict with the explicit overlay
+# and cause display power management issues.
+display_auto_detect=0
 
 # If using the Raspberry Pi Touch Display 2, put it in landscape mode
 #dtoverlay=vc4-kms-dsi-ili9881-7inch,rotation=90
