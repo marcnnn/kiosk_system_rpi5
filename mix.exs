@@ -19,7 +19,10 @@ defmodule KioskSystemRpi5.MixProject do
       description: description(),
       package: package(),
       deps: deps(),
-      aliases: [loadconfig: [&bootstrap/1]],
+      aliases: [
+        loadconfig: [&bootstrap/1],
+        generate_fwup_conf: &generate_fwup_conf/1
+      ],
       docs: docs()
     ]
   end
@@ -67,8 +70,8 @@ defmodule KioskSystemRpi5.MixProject do
   defp deps do
     [
       {:nerves, "~> 1.11", runtime: false},
-      {:nerves_system_br, "1.31.6", runtime: false},
-      {:nerves_toolchain_aarch64_nerves_linux_gnu, "~> 13.2.0", runtime: false},
+      {:nerves_system_br, "1.34.0", runtime: false},
+      {:nerves_toolchain_aarch64_nerves_linux_gnu, "~> 15.3.0", runtime: false},
       {:nerves_system_linter, "~> 0.4", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.22", only: :docs, runtime: false}
     ]
@@ -106,17 +109,18 @@ defmodule KioskSystemRpi5.MixProject do
       "fwup_include",
       "rootfs_overlay",
       "CHANGELOG.md",
-      "cmdline.txt",
+      "cmdline-a.txt",
+      "cmdline-b.txt",
       "config.txt",
       "fwup-ops.conf",
-      "fwup.conf",
+      "fwup.conf.eex",
       "LICENSES/*",
-      "linux-6.12.defconfig",
+      "linux-6.18.defconfig",
       "mix.exs",
       "nerves_defconfig",
       "post-build.sh",
       "post-createfs.sh",
-      "ramoops.dts",
+      "ramoops-pi4-overlay.dts",
       "README.md",
       "REUSE.toml",
       "VERSION"
@@ -148,5 +152,16 @@ defmodule KioskSystemRpi5.MixProject do
     else
       System.put_env("MIX_TARGET", "target")
     end
+  end
+
+  defp generate_fwup_conf(_args) do
+    template_path = Path.join(__DIR__, "fwup.conf.eex")
+    output_path = Path.join(__DIR__, "fwup.conf")
+
+    Mix.shell().info("Generating fwup.conf")
+
+    content = EEx.eval_file(template_path)
+    File.write!(output_path, content)
+    Mix.shell().info("Successfully generated #{output_path}")
   end
 end
